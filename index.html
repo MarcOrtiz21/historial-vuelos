@@ -391,7 +391,7 @@
 
             <!-- Play Animation Button -->
             <button id="playAnimationBtn" onclick="playAllFlightsAnimation()"
-                class="absolute bottom-8 left-32 bg-[#2C2C2E]/80 backdrop-blur-xl px-4 py-2.5 rounded-full shadow-lg text-gray-400 hover:text-white hover:bg-[#3A3A3C] transition-all border border-white/10 z-[999] flex items-center gap-2 group"
+                class="absolute bottom-8 left-36 bg-[#2C2C2E]/80 backdrop-blur-xl px-4 py-2.5 rounded-full shadow-lg text-red-400 hover:text-red-300 hover:bg-[#3A3A3C] transition-all border border-white/10 z-[999] flex items-center gap-2 group"
                 title="Reproducir todos los vuelos">
                 <i class="ph-bold ph-play text-lg group-hover:scale-110 transition-transform"></i>
             </button>
@@ -964,11 +964,13 @@
             return points;
         }
 
-        // Helper: get bearing angle between two [lat, lng] points for icon rotation
+        // Helper: get bearing angle from North for icon rotation
+        // ph-airplane icon points UP (north) by default, so we compute clockwise angle from north
         function getBearing(p1, p2) {
             const dLat = p2[0] - p1[0];
             const dLng = p2[1] - p1[1];
-            return -Math.atan2(dLat, dLng) * (180 / Math.PI);
+            // atan2(dLng, dLat) gives angle from North, clockwise positive — matches CSS rotate
+            return Math.atan2(dLng, dLat) * (180 / Math.PI);
         }
 
         // Helper: interpolate position along arc points at a given progress (0-1)
