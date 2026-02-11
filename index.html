@@ -945,8 +945,57 @@
             }, 50);
         }
 
+        // Shared helper: generate arc points (same curvature as route lines)
+        function getArcPoints(start, end, numPoints = 100) {
+            const points = [];
+            for (let i = 0; i <= numPoints; i++) {
+                const t = i / numPoints;
+                const lat = start.lat + t * (end.lat - start.lat);
+                let lngDiff = end.lng - start.lng;
+                if (Math.abs(lngDiff) > 180) {
+                    lngDiff = lngDiff > 0 ? lngDiff - 360 : lngDiff + 360;
+                }
+                const lng = start.lng + t * lngDiff;
+                const curveFactor = Math.sin(t * Math.PI) * 0.15;
+                const midLat = (start.lat + end.lat) / 2;
+                const curveOffset = curveFactor * Math.abs(lngDiff) * (midLat > 0 ? 1 : -1) * 0.3;
+                points.push([lat + curveOffset, lng]);
+            }
+            return points;
+        }
+
+        // Helper: get bearing angle between two [lat, lng] points for icon rotation
+        function getBearing(p1, p2) {
+            const dLat = p2[0] - p1[0];
+            const dLng = p2[1] - p1[1];
+            return -Math.atan2(dLat, dLng) * (180 / Math.PI);
+        }
+
+        // Helper: interpolate position along arc points at a given progress (0-1)
+        function interpolateArc(arcPoints, progress) {
+            const idx = progress * (arcPoints.length - 1);
+            const i = Math.floor(idx);
+            const frac = idx - i;
+            if (i >= arcPoints.length - 1) return arcPoints[arcPoints.length - 1];
+            const p1 = arcPoints[i];
+            const p2 = arcPoints[i + 1];
+            return [
+                p1[0] + (p2[0] - p1[0]) * frac,
+                p1[1] + (p2[1] - p1[1]) * frac
+            ];
+        }
+
+        // Helper: create/update plane icon with a given angle
+        function makePlaneIcon(angle, size = 24) {
+            return L.divIcon({
+                className: 'animated-plane',
+                html: `<i class="ph-fill ph-airplane" style="transform: rotate(${angle}deg); font-size: ${size}px; color: #3B82F6; filter: drop-shadow(0 2px 6px rgba(59,130,246,0.5));"></i>`,
+                iconSize: [size, size],
+                iconAnchor: [size / 2, size / 2]
+            });
+        }
+
         function animatePlaneOnRoute(start, end) {
-            // Remove existing animated plane
             if (animatedPlane) {
                 map.removeLayer(animatedPlane);
                 animatedPlane = null;
@@ -955,42 +1004,29 @@
                 cancelAnimationFrame(planeAnimationId);
                 planeAnimationId = null;
             }
-            // Calculate angle for plane: 
-            // atan2(dLat, dLng) gives angle from East (positive X-axis), counterclockwise positive
-            // CSS rotate is clockwise positive, so we negate
-            // ph-airplane icon points right (East) by default, so no offset needed
-            const dLat = end.lat - start.lat;
-            const dLng = end.lng - start.lng;
-            const angle = -Math.atan2(dLat, dLng) * (180 / Math.PI);
 
-            // Create plane icon using Phosphor ph-airplane (points right)
-            const planeIcon = L.divIcon({
-                className: 'animated-plane',
-                html: `<i class="ph-fill ph-airplane" style="transform: rotate(${angle}deg); font-size: 24px; color: #3B82F6; filter: drop-shadow(0 2px 6px rgba(59,130,246,0.5));"></i>`,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
-            });
+            const arcPoints = getArcPoints(start, end);
+            const initialAngle = getBearing(arcPoints[0], arcPoints[1]);
 
-            // Start position
-            animatedPlane = L.marker([start.lat, start.lng], { icon: planeIcon }).addTo(map);
+            animatedPlane = L.marker(arcPoints[0], { icon: makePlaneIcon(initialAngle, 24) }).addTo(map);
 
-            // Animation settings (same speed as card plane animation ~4s)
             const duration = 4000;
             let animationStart = performance.now();
 
             function animate(currentTime) {
                 const elapsed = currentTime - animationStart;
-                let progress = (elapsed % duration) / duration; // Loop by using modulo
+                let progress = (elapsed % duration) / duration;
 
-                // Ease in-out for smooth motion
                 const eased = progress < 0.5
                     ? 2 * progress * progress
                     : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-                const lat = start.lat + (end.lat - start.lat) * eased;
-                const lng = start.lng + (end.lng - start.lng) * eased;
+                const pos = interpolateArc(arcPoints, eased);
+                const nextPos = interpolateArc(arcPoints, Math.min(eased + 0.02, 1));
+                const angle = getBearing(pos, nextPos);
 
-                animatedPlane.setLatLng([lat, lng]);
+                animatedPlane.setLatLng(pos);
+                animatedPlane.setIcon(makePlaneIcon(angle, 24));
                 planeAnimationId = requestAnimationFrame(animate);
             }
 
@@ -1070,20 +1106,12 @@
                 planeAnimationId = null;
             }
 
-            const dLat = end.lat - start.lat;
-            const dLng = end.lng - start.lng;
-            const angle = -Math.atan2(dLat, dLng) * (180 / Math.PI);
+            const arcPoints = getArcPoints(start, end);
+            const initialAngle = getBearing(arcPoints[0], arcPoints[1]);
 
-            const planeIcon = L.divIcon({
-                className: 'animated-plane',
-                html: `<i class="ph-fill ph-airplane" style="transform: rotate(${angle}deg); font-size: 28px; color: #3B82F6; filter: drop-shadow(0 2px 8px rgba(59,130,246,0.6));"></i>`,
-                iconSize: [28, 28],
-                iconAnchor: [14, 14]
-            });
+            animatedPlane = L.marker(arcPoints[0], { icon: makePlaneIcon(initialAngle, 28) }).addTo(map);
 
-            animatedPlane = L.marker([start.lat, start.lng], { icon: planeIcon }).addTo(map);
-
-            const duration = 3000; // 3 seconds per flight
+            const duration = 3000;
             const animationStart = performance.now();
 
             function animate(currentTime) {
@@ -1099,10 +1127,12 @@
                     ? 2 * progress * progress
                     : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-                const lat = start.lat + (end.lat - start.lat) * eased;
-                const lng = start.lng + (end.lng - start.lng) * eased;
+                const pos = interpolateArc(arcPoints, eased);
+                const nextPos = interpolateArc(arcPoints, Math.min(eased + 0.02, 1));
+                const angle = getBearing(pos, nextPos);
 
-                animatedPlane.setLatLng([lat, lng]);
+                animatedPlane.setLatLng(pos);
+                animatedPlane.setIcon(makePlaneIcon(angle, 28));
 
                 if (progress < 1) {
                     planeAnimationId = requestAnimationFrame(animate);
