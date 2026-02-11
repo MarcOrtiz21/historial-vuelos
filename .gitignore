@@ -1,0 +1,10 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Nested repos / release builds
+SkyLine/
+github_release/
+
+# Test data
+test_flights.csv

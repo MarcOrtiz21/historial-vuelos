@@ -1,0 +1,25 @@
+Date,Flight number,From,To,Dep time,Arr time,Duration,Airline,Aircraft,Registration,Seat number,Seat type,Flight class,Flight reason,Note,Dep_id,Arr_id,Airline_id,Aircraft_id
+2019-08-28,FR3063,Barcelona / El Prat (BCN/LEBL),Tenerife-North / Los Rodeos (TFN/GCXO),08:20:00,10:25:00,03:05:00,Ryanair (FR/RYR),Boeing 737-800 (B738),EI-EPF,23F,1,1,1,,239,2896,668,231
+2019-09-07,FR3064,Tenerife-North / Los Rodeos (TFN/GCXO),Barcelona / El Prat (BCN/LEBL),09:35:00,13:35:00,03:00:00,Ryanair (FR/RYR),Boeing 737-800 (B738),EI-ESP,20F,1,1,1,,2896,239,668,231
+2022-04-24,LH1819,Barcelona / El Prat (BCN/LEBL),Munich / Franz Josef Strauss (MUC/EDDM),07:50:00,09:50:00,02:00:00,Lufthansa (LH/DLH),Airbus A320 (A320),D-AIUR,10B,2,1,2,,239,1952,239,27
+2022-04-24,LH2342,Munich / Franz Josef Strauss (MUC/EDDM),Graz / Graz (GRZ/LOWG),11:40:00,12:30:00,00:50:00,Lufthansa (LH/DLH),Embraer ERJ-195 (E195),I-ADJS,9A,1,1,2,,1952,1048,239,2016
+2022-04-30,OS393,Vienna / Schwechat (VIE/LOWW),Barcelona / El Prat (BCN/LEBL),17:30:00,19:50:00,02:20:00,Austrian Airlines (OS/AUA),Airbus A320 (A320),OE-LBY,11A,1,1,2,,3179,239,87,27
+2022-07-02,IB2623,Barcelona / El Prat (BCN/LEBL),Los Angeles / Los Angeles International (LAX/KLAX),14:00:00,18:10:00,13:10:00,Iberia (IB/IBE),Airbus A330-200 (A332),EC-NRH,34L,1,1,1,,239,1559,377,30
+2022-07-28,IB2622,San Francisco / San Francisco International (SFO/KSFO),Barcelona / El Prat (BCN/LEBL),20:10:00,17:00:00,11:50:00,Iberia (IB/IBE),Airbus A330-200 (A332),EC-NRG,34L,1,1,1,,2644,239,377,30
+2023-03-23,FR7509,Barcelona / El Prat (BCN/LEBL),Menorca / Mahon (MAH/LEMH),11:25:00,12:20:00,00:55:00,Ryanair (FR/RYR),Boeing 737-800 (B738),EI-DLK,30A,1,1,1,,239,1742,668,231
+2023-03-26,FR6882,Menorca / Mahon (MAH/LEMH),Barcelona / El Prat (BCN/LEBL),12:55:00,13:50:00,00:55:00,Ryanair (FR/RYR),Boeing 737-800 (B738),EI-DLK,14F,1,1,1,,1742,239,668,231
+2024-02-06,LH1809,Barcelona / El Prat (BCN/LEBL),Munich / Franz Josef Strauss (MUC/EDDM),09:00:00,11:05:00,02:05:00,Lufthansa (LH/DLH),Airbus A320neo (A20N),D-AINR,19B,2,1,1,,239,1952,239,2127
+2024-02-06,LH2338,Munich / Franz Josef Strauss (MUC/EDDM),Graz / Graz (GRZ/LOWG),12:05:00,12:55:00,00:50:00,Lufthansa (LH/DLH),Bombardier CRJ-900 (CRJ9),D-ACNM,19F,1,1,1,,1952,1048,239,531
+2024-02-09,LX1513,Graz / Graz (GRZ/LOWG),Zurich / Kloten (ZRH/LSZH),15:20:00,16:35:00,01:15:00,Swiss International Airlines (LX/SWR),Embraer ERJ-190 (E190),HB-JVY,13F,1,1,1,,1048,3548,741,655
+2024-02-09,LX1956,Zurich / Kloten (ZRH/LSZH),Barcelona / El Prat (BCN/LEBL),17:30:00,19:15:00,01:45:00,Swiss International Airlines (LX/SWR),Airbus A321 (A321),HB-IOH,12B,2,1,1,,3548,239,741,28
+2024-07-15,VY1882,Barcelona / El Prat (BCN/LEBL),Berlin / Brandenburg (BER/EDDB),07:15:00,10:00:00,02:45:00,Vueling Airlines (VY/VLG),Airbus A321 (A321),EC-NLY,24F,1,1,1,,239,4895,839,28
+2024-08-02,VY6335,Milan / Malpensa (MXP/LIMC),Barcelona / El Prat (BCN/LEBL),18:25:00,20:10:00,01:45:00,Vueling Airlines (VY/VLG),Airbus A321 (A321),EC-NLX,21E,2,1,1,,1983,239,839,28
+2024-09-04,VY3554,Barcelona / El Prat (BCN/LEBL),Ibiza / Ibiza (IBZ/LEIB),08:45:00,09:50:00,01:05:00,Vueling Airlines (VY/VLG),Airbus A320 (A320),EC-MBE,26F,1,1,1,Calentada a ibiza,239,1209,839,27
+2024-09-05,VY3501,Ibiza / Ibiza (IBZ/LEIB),Barcelona / El Prat (BCN/LEBL),08:55:00,09:55:00,01:00:00,Vueling Airlines (VY/VLG),Airbus A320 (A320),EC-OFV,26C,1,1,1,Vuelta de la calentada a ibiza,1209,239,839,27
+2025-01-28,VY8652,Barcelona / El Prat (BCN/LEBL),Prague / Praha-Ruzyne (PRG/LKPR),07:20:00,09:50:00,02:30:00,Vueling Airlines (VY/VLG),Airbus A321 (A321),EC-MMU,25D,3,1,1,,239,2398,839,28
+2025-01-31,VY8655,Prague / Praha-Ruzyne (PRG/LKPR),Barcelona / El Prat (BCN/LEBL),21:00:00,23:35:00,02:35:00,Vueling Airlines (VY/VLG),Airbus A321 (A321),EC-MHB,25B,2,1,1,,2398,239,839,28
+2025-07-24,VY2472,Barcelona / El Prat (BCN/LEBL),Lanzarote / Lanzarote (ACE/GCRR),07:10:00,09:25:00,03:15:00,Vueling Airlines (VY/VLG),Airbus A321neo (A21N),EC-NYF,33C,3,1,1,Primer viaje con Angela,239,28,839,2128
+2025-07-29,VY2475,Lanzarote / Lanzarote (ACE/GCRR),Barcelona / El Prat (BCN/LEBL),18:35:00,22:35:00,03:00:00,Vueling Airlines (VY/VLG),Airbus A321 (A321),EC-MJR,33A,1,1,1,,28,239,839,28
+2025-12-21,VY1882,Barcelona / El Prat (BCN/LEBL),Berlin / Brandenburg (BER/EDDB),07:10:00,09:55:00,02:45:00,Vueling Airlines (VY/VLG),Airbus A321neo (A21N),EC-NYF,29E,2,1,1,,239,4895,839,2128
+2025-12-24,VY1885,Berlin / Brandenburg (BER/EDDB),Barcelona / El Prat (BCN/LEBL),15:45:00,18:20:00,02:35:00,Vueling Airlines (VY/VLG),Airbus A320 (A320),EC-KCU,27F,1,1,1,,4895,239,839,27
+
