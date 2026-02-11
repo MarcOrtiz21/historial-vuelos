@@ -137,6 +137,20 @@
             color: #1C1C1E !important;
         }
 
+        /* Light mode Play button */
+        body.light #playAnimationBtn {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        body.light #playAnimationBtn:hover {
+            background: rgba(255, 255, 255, 1) !important;
+        }
+
+        body.light #playAnimationBtn i {
+            color: #DC2626 !important;
+        }
+
         /* Scrollbar */
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
@@ -964,15 +978,6 @@
             return points;
         }
 
-        // Helper: get bearing angle from North for icon rotation
-        // ph-airplane icon points UP (north) by default, so we compute clockwise angle from north
-        function getBearing(p1, p2) {
-            const dLat = p2[0] - p1[0];
-            const dLng = p2[1] - p1[1];
-            // atan2(dLng, dLat) gives angle from North, clockwise positive — matches CSS rotate
-            return Math.atan2(dLng, dLat) * (180 / Math.PI);
-        }
-
         // Helper: interpolate position along arc points at a given progress (0-1)
         function interpolateArc(arcPoints, progress) {
             const idx = progress * (arcPoints.length - 1);
@@ -987,30 +992,49 @@
             ];
         }
 
-        // Helper: create/update plane icon with a given angle
-        function makePlaneIcon(angle, size = 24) {
+        // Helper: create glowing dot icon for animation
+        function makeDotIcon(size = 12) {
             return L.divIcon({
-                className: 'animated-plane',
-                html: `<i class="ph-fill ph-airplane" style="transform: rotate(${angle}deg); font-size: ${size}px; color: #3B82F6; filter: drop-shadow(0 2px 6px rgba(59,130,246,0.5));"></i>`,
+                className: 'animated-dot',
+                html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#3B82F6;box-shadow:0 0 ${size}px ${size / 2}px rgba(59,130,246,0.6), 0 0 ${size * 2}px ${size}px rgba(59,130,246,0.3);"></div>`,
                 iconSize: [size, size],
                 iconAnchor: [size / 2, size / 2]
             });
         }
 
-        function animatePlaneOnRoute(start, end) {
+        // Trail polyline reference for cleanup
+        let animatedTrail = null;
+
+        function cleanupAnimation() {
             if (animatedPlane) {
                 map.removeLayer(animatedPlane);
                 animatedPlane = null;
+            }
+            if (animatedTrail) {
+                map.removeLayer(animatedTrail);
+                animatedTrail = null;
             }
             if (planeAnimationId) {
                 cancelAnimationFrame(planeAnimationId);
                 planeAnimationId = null;
             }
+        }
+
+        function animatePlaneOnRoute(start, end) {
+            cleanupAnimation();
 
             const arcPoints = getArcPoints(start, end);
-            const initialAngle = getBearing(arcPoints[0], arcPoints[1]);
 
-            animatedPlane = L.marker(arcPoints[0], { icon: makePlaneIcon(initialAngle, 24) }).addTo(map);
+            // Create trail polyline (starts empty, grows as dot moves)
+            animatedTrail = L.polyline([], {
+                color: '#3B82F6',
+                weight: 3,
+                opacity: 0.8,
+                dashArray: null
+            }).addTo(map);
+
+            // Create glowing dot
+            animatedPlane = L.marker(arcPoints[0], { icon: makeDotIcon(12) }).addTo(map);
 
             const duration = 4000;
             let animationStart = performance.now();
@@ -1019,16 +1043,24 @@
                 const elapsed = currentTime - animationStart;
                 let progress = (elapsed % duration) / duration;
 
+                // Reset trail on each new loop
+                if (elapsed > 0 && (elapsed % duration) < 20) {
+                    animatedTrail.setLatLngs([]);
+                }
+
                 const eased = progress < 0.5
                     ? 2 * progress * progress
                     : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
                 const pos = interpolateArc(arcPoints, eased);
-                const nextPos = interpolateArc(arcPoints, Math.min(eased + 0.02, 1));
-                const angle = getBearing(pos, nextPos);
-
                 animatedPlane.setLatLng(pos);
-                animatedPlane.setIcon(makePlaneIcon(angle, 24));
+
+                // Build trail up to current position
+                const trailIdx = Math.floor(eased * (arcPoints.length - 1));
+                const trailPoints = arcPoints.slice(0, trailIdx + 1);
+                trailPoints.push(pos);
+                animatedTrail.setLatLngs(trailPoints);
+
                 planeAnimationId = requestAnimationFrame(animate);
             }
 
@@ -1055,12 +1087,10 @@
             isPlayingAnimation = true;
             currentPlaybackIndex = 0;
 
-            // Update play button
+            // Update play button to stop icon
             const playBtn = document.getElementById('playAnimationBtn');
             if (playBtn) {
-                playBtn.innerHTML = '<i class="ph-bold ph-stop"></i>';
-                playBtn.classList.add('text-red-400');
-                playBtn.classList.remove('text-gray-400');
+                playBtn.innerHTML = '<i class="ph-bold ph-stop text-lg"></i>';
             }
 
             // Show overlay
@@ -1099,19 +1129,19 @@
         }
 
         function animatePlaneOnePass(start, end, onComplete) {
-            if (animatedPlane) {
-                map.removeLayer(animatedPlane);
-                animatedPlane = null;
-            }
-            if (planeAnimationId) {
-                cancelAnimationFrame(planeAnimationId);
-                planeAnimationId = null;
-            }
+            cleanupAnimation();
 
             const arcPoints = getArcPoints(start, end);
-            const initialAngle = getBearing(arcPoints[0], arcPoints[1]);
 
-            animatedPlane = L.marker(arcPoints[0], { icon: makePlaneIcon(initialAngle, 28) }).addTo(map);
+            // Create trail polyline
+            animatedTrail = L.polyline([], {
+                color: '#3B82F6',
+                weight: 3,
+                opacity: 0.8
+            }).addTo(map);
+
+            // Create glowing dot
+            animatedPlane = L.marker(arcPoints[0], { icon: makeDotIcon(14) }).addTo(map);
 
             const duration = 3000;
             const animationStart = performance.now();
@@ -1130,11 +1160,13 @@
                     : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
                 const pos = interpolateArc(arcPoints, eased);
-                const nextPos = interpolateArc(arcPoints, Math.min(eased + 0.02, 1));
-                const angle = getBearing(pos, nextPos);
-
                 animatedPlane.setLatLng(pos);
-                animatedPlane.setIcon(makePlaneIcon(angle, 28));
+
+                // Build trail up to current position
+                const trailIdx = Math.floor(eased * (arcPoints.length - 1));
+                const trailPoints = arcPoints.slice(0, trailIdx + 1);
+                trailPoints.push(pos);
+                animatedTrail.setLatLngs(trailPoints);
 
                 if (progress < 1) {
                     planeAnimationId = requestAnimationFrame(animate);
@@ -1152,20 +1184,11 @@
                 clearTimeout(playbackTimeoutId);
                 playbackTimeoutId = null;
             }
-            if (animatedPlane) {
-                map.removeLayer(animatedPlane);
-                animatedPlane = null;
-            }
-            if (planeAnimationId) {
-                cancelAnimationFrame(planeAnimationId);
-                planeAnimationId = null;
-            }
+            cleanupAnimation();
 
             const playBtn = document.getElementById('playAnimationBtn');
             if (playBtn) {
-                playBtn.innerHTML = '<i class="ph-bold ph-play"></i>';
-                playBtn.classList.remove('text-red-400');
-                playBtn.classList.add('text-gray-400');
+                playBtn.innerHTML = '<i class="ph-bold ph-play text-lg"></i>';
             }
 
             hidePlaybackOverlay();
